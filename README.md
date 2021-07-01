@@ -26,3 +26,5 @@ Advanced sync options (Refresh rate/smooth speed/black/white filters/minimum val
 If you're not happy with the repo being available, let me know and I will remove it. I created this app as a side project to test my abilities and also be able to sync my lights with my PC and there isn't (yet) an official solution. 
 Thanks for making affordable light strips so I don't have to shell out thousands to make my desk look like a space ship.
 
+
+If you'd like to support me so I can keep making programs like this, https://paypal.me/tescofresco?locale.x=en_GB
