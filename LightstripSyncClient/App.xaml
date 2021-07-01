@@ -1,0 +1,14 @@
+﻿<Application x:Class="LightstripSyncClient.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:LightstripSyncClient"
+             StartupUri="Connect.xaml">
+    <Application.Resources>
+
+        <Color x:Key="WindowBackground">#FF323232</Color>
+        <Color x:Key="ButtonBackground">#FF464646</Color>
+        <Color x:Key="ButtonText">#FFB6B6B6</Color>
+        <Color x:Key="FormBackground">#FF515151</Color>
+
+    </Application.Resources>
+</Application>
