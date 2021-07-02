@@ -35,8 +35,10 @@ namespace LightstripSyncClient
         private ListView deviceListView;
 
         public BluetoothLEDevice lightStrip;
+        private bool isRGBIC = false;
         private GattCharacteristic lightChar;
         private bool charFound = false;
+        
 
         private Forms.Timer keepAliveTimer;
 
@@ -95,6 +97,7 @@ namespace LightstripSyncClient
         {
             var item = (ListViewItem)deviceListView.SelectedItem;
             lightStrip = (BluetoothLEDevice)item.Tag;
+            isRGBIC = checkRGBIC();
 
 
             await GetGattCharacteristic();
@@ -192,7 +195,15 @@ namespace LightstripSyncClient
         }
         private byte[] CreateBluetoothColourDataBytes(string hexColor)
         {
-            var btString = "330502" + hexColor + "00000000000000000000000000";
+            string btString;
+            if(isRGBIC)
+            {
+                btString = "33051501" + hexColor + "0000000000ff7f0000000000";
+            } else
+            {
+                btString = "330502" + hexColor + "00000000000000000000000000";
+            }
+            
             return CalculateCheckSum(StringToByteArray(btString));
           
         }
@@ -237,6 +248,13 @@ namespace LightstripSyncClient
 
             return bytes;
         }
+
+        public bool checkRGBIC()
+        {
+            return lightStrip.Name.Contains("ihoment_H6143");
+        }
+
+       
     }
 }
 

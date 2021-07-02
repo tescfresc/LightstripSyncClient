@@ -104,5 +104,10 @@ namespace LightstripSyncClient
             Globals.bluetoothLEConnectionManager.lightStrip.Dispose();
             System.Windows.Application.Current.Shutdown();
         }
+
+        private void Test_Button_Click(object sender, RoutedEventArgs e)
+        {
+            //Globals.bluetoothLEConnectionManager.TestCommand();
+        }
     }
 }

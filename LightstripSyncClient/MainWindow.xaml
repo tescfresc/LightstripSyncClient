@@ -56,5 +56,13 @@
                 <SolidColorBrush Color="{DynamicResource ButtonBackground}"/>
             </Button.Background>
         </Button>
+        <Button x:Name="Test_Button" Content="TEST" HorizontalAlignment="Center" Margin="10,394,10,0" VerticalAlignment="Top" Width="263" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Test_Button_Click" Visibility="Hidden">
+            <Button.Foreground>
+                <SolidColorBrush Color="{DynamicResource ButtonText}"/>
+            </Button.Foreground>
+            <Button.Background>
+                <SolidColorBrush Color="{DynamicResource ButtonBackground}"/>
+            </Button.Background>
+        </Button>
     </Grid>
 </Window>
