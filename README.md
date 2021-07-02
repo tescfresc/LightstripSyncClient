@@ -8,8 +8,7 @@ Includes a mode to sync the colour of the lights with the desktop colour.
 Thanks to BeauJBurroughs https://github.com/BeauJBurroughs/Govee-H6127-Reverse-Engineering for doing a lot of the hard work and figuring out how the lights work with Bluetooth Low Energy.
 
 ### Current confirmed working models are 
-H6141,  H6181. 
-H6143 works partially, need more info from bluetooth logs to add full functionality
+H6141,  H6181, H6143
 
 
 If you have a different model from above, try testing it out and let me know if it works. From what I can tell, most Govee lights use the same UUIDs for BLE connections, so it should all work.
