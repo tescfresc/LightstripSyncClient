@@ -251,7 +251,7 @@ namespace LightstripSyncClient
 
         public bool checkRGBIC()
         {
-            return lightStrip.Name.Contains("ihoment_H6143");
+            return lightStrip.Name.Contains("ihoment_H6143") || lightStrip.Name.Contains("ihoment_H6144");
         }
 
        
