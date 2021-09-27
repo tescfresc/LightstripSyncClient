@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30717.126
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31717.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightstripSyncClient", "LightstripSyncClient\LightstripSyncClient.csproj", "{B51531EE-02F1-4B0C-A124-842C93555D0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightstripSync.Library", "LightstripSync.Library\LightstripSync.Library.csproj", "{E343DA7B-135F-4FB6-9136-A325AA8FFF67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{B51531EE-02F1-4B0C-A124-842C93555D0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B51531EE-02F1-4B0C-A124-842C93555D0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B51531EE-02F1-4B0C-A124-842C93555D0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E343DA7B-135F-4FB6-9136-A325AA8FFF67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E343DA7B-135F-4FB6-9136-A325AA8FFF67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E343DA7B-135F-4FB6-9136-A325AA8FFF67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E343DA7B-135F-4FB6-9136-A325AA8FFF67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

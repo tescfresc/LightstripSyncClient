@@ -1,53 +1,33 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Data;
-using System.Drawing;
-
-
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using Forms = System.Windows.Forms;
-using System.Windows.Shapes;
-using System.Windows.Interop;
+using ColorHelper;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Storage.Streams;
-using ColorHelper;
+using Forms = System.Windows.Forms;
 
 namespace LightstripSyncClient
 {
     public class BluetoothLEConnectionManager
     {
-        const string GattUUID = "00010203-0405-0607-0809-0a0b0c0d2b11";
+        private const string GattUUID = "00010203-0405-0607-0809-0a0b0c0d2b11";
 
-
-
-        private ListView deviceListView;
-
+        public ObservableCollection<BluetoothLEDevice­> Devices { get; private set; } = new ObservableCollection<BluetoothLEDevice>();
         public BluetoothLEDevice lightStrip;
         private bool isRGBIC = false;
         private GattCharacteristic lightChar;
         private bool charFound = false;
-        
 
         private Forms.Timer keepAliveTimer;
 
         private bool lightsOn = true;
         private bool rainbowLoop;
 
-        public BluetoothLEConnectionManager(ListView deviceListView)
+        public BluetoothLEConnectionManager()
         {
-            this.deviceListView = deviceListView;
         }
         public void GetAvailableBluetoothDevices()
         {
@@ -56,7 +36,7 @@ namespace LightstripSyncClient
         private void InitiateDeviceWatcher()
         {
             string[] requestedProperties = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
-            DeviceWatcher deviceWatcher = DeviceInformation.CreateWatcher(BluetoothLEDevice.GetDeviceSelectorFromPairingState(false), requestedProperties, DeviceInformationKind.AssociationEndpoint);
+            var deviceWatcher = DeviceInformation.CreateWatcher(BluetoothLEDevice.GetDeviceSelectorFromPairingState(false), requestedProperties, DeviceInformationKind.AssociationEndpoint);
             deviceWatcher.Added += DeviceWatcher_Added;
             deviceWatcher.Updated += DeviceWatcher_Updated;
             deviceWatcher.Removed += DeviceWatcher_Removed;
@@ -64,9 +44,13 @@ namespace LightstripSyncClient
             deviceWatcher.Start();
         }
 
-        private void DeviceWatcher_Added(DeviceWatcher sender, DeviceInformation deviceInformation)
+        private async void DeviceWatcher_Added(DeviceWatcher sender, DeviceInformation deviceInformation)
         {
-            GetBluetoothDetails(deviceInformation);
+            var device = await GetBluetoothDetails(deviceInformation);
+            if (device != null)
+            {
+                Devices.Add(device);
+            }
         }
         private void DeviceWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate deviceInformationUpdate)
         {
@@ -76,49 +60,35 @@ namespace LightstripSyncClient
         {
         }
 
-        async void GetBluetoothDetails(DeviceInformation deviceInformation)
+        private async Task<BluetoothLEDevice> GetBluetoothDetails(DeviceInformation deviceInformation)
         {
-            BluetoothLEDevice bluetoothLEDevice = await BluetoothLEDevice.FromIdAsync(deviceInformation.Id);
+            var bluetoothLEDevice = await BluetoothLEDevice.FromIdAsync(deviceInformation.Id);
 
             var deviceName = bluetoothLEDevice.Name;
-            if (deviceName.Substring(0, 4) == "ihom")
-            {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    var item = new ListViewItem();
-                    item.Content = bluetoothLEDevice.Name;
-                    item.Tag = bluetoothLEDevice;
-                    deviceListView.Items.Add(item);
-                });
-            }
+            return deviceName.Substring(0, 4) == "ihom" ? bluetoothLEDevice : null;
         }
 
-        public async void InitiateConnection()
+        public async Task<bool> InitiateConnection(BluetoothLEDevice device)
         {
-            var item = (ListViewItem)deviceListView.SelectedItem;
-            lightStrip = (BluetoothLEDevice)item.Tag;
+            lightStrip = device;
             isRGBIC = checkRGBIC();
-
 
             await GetGattCharacteristic();
 
-            if(charFound)
+            if (charFound)
             {
                 MaintainConnection();
-                Connect connectWindow = (LightstripSyncClient.Connect) App.Current.MainWindow;
-                MainWindow main = new MainWindow();
-                App.Current.MainWindow = main;
-                connectWindow.Close();
-                main.Show();
-                
+
+                return true;
             }
+            return false;
 
         }
 
-        async Task GetGattCharacteristic()
+        private async Task GetGattCharacteristic()
         {
-            GattDeviceServicesResult result = await lightStrip.GetGattServicesAsync();
-            if(result.Status == GattCommunicationStatus.Success)
+            var result = await lightStrip.GetGattServicesAsync();
+            if (result.Status == GattCommunicationStatus.Success)
             {
                 var services = result.Services;
                 foreach (var service in services)
@@ -140,8 +110,10 @@ namespace LightstripSyncClient
         {
             var keepAlive = "aa010000000000000000000000000000000000ab";
             var bytes = StringToByteArray(keepAlive);
-            keepAliveTimer = new Forms.Timer();
-            keepAliveTimer.Interval = 2000;
+            keepAliveTimer = new Forms.Timer
+            {
+                Interval = 2000
+            };
             keepAliveTimer.Tick += (sender, e) => KeepAliveTick(sender, e, bytes);
             keepAliveTimer.Start();
         }
@@ -149,7 +121,7 @@ namespace LightstripSyncClient
         public void TogglePowerState(bool state)
         {
             lightsOn = state;
-            WriteCharacteristic(CreateBluetoothPowerDataBytes(state));
+            WriteCharacteristic(CreateBluetoothPowerDataBytes(lightsOn));
         }
 
         private void KeepAliveTick(object sender, EventArgs e, byte[] bytes)
@@ -159,7 +131,7 @@ namespace LightstripSyncClient
 
         public void ChangeColor(System.Drawing.Color color)
         {
-            var hexColor = ColorHelper.ColorConverter.RgbToHex(new RGB(color.R, color.G, color.B));
+            var hexColor = ColorConverter.RgbToHex(new RGB(color.R, color.G, color.B));
             WriteCharacteristic(CreateBluetoothColourDataBytes(hexColor.ToString()));
         }
 
@@ -174,10 +146,13 @@ namespace LightstripSyncClient
         public void ToggleRainbowMode(bool state)
         {
             rainbowLoop = state;
-            if (rainbowLoop) RainbowLoop();
+            if (rainbowLoop)
+            {
+                RainbowLoop();
+            }
         }
 
-        async void RainbowLoop()
+        private async void RainbowLoop()
         {
             var colour = new HSV(0, 100, 100);
             while (rainbowLoop)
@@ -185,7 +160,10 @@ namespace LightstripSyncClient
                 WriteCharacteristic(CreateBluetoothColourDataBytes(ColorHelper.ColorConverter.HsvToHex(colour).Value));
                 colour.H += 1;
                 await Task.Delay(20);
-                if (colour.H > 359) colour.H = 0;
+                if (colour.H > 359)
+                {
+                    colour.H = 0;
+                }
             }
         }
 
@@ -195,17 +173,8 @@ namespace LightstripSyncClient
         }
         private byte[] CreateBluetoothColourDataBytes(string hexColor)
         {
-            string btString;
-            if(isRGBIC)
-            {
-                btString = "33051501" + hexColor + "0000000000ff7f0000000000";
-            } else
-            {
-                btString = "330502" + hexColor + "00000000000000000000000000";
-            }
-            
+            var btString = isRGBIC ? "33051501" + hexColor + "0000000000ff7f0000000000" : "330502" + hexColor + "00000000000000000000000000";
             return CalculateCheckSum(StringToByteArray(btString));
-          
         }
         private byte[] CreateBluetoothBrightnessDataBytes(string value)
         {
@@ -213,12 +182,11 @@ namespace LightstripSyncClient
             return CalculateCheckSum(StringToByteArray(btString));
         }
 
-
-        async void WriteCharacteristic(byte[] byteArray)
+        private async void WriteCharacteristic(byte[] byteArray)
         {
             var writer = new DataWriter();
             writer.WriteBytes(byteArray);
-            GattCommunicationStatus writeAttempt = await lightChar.WriteValueAsync(writer.DetachBuffer());
+            _ = await lightChar.WriteValueAsync(writer.DetachBuffer());
         }
 
         public static byte[] StringToByteArray(string hex)
@@ -229,7 +197,7 @@ namespace LightstripSyncClient
                              .ToArray();
         }
 
-        private byte[] CalculateCheckSum (byte[] bytes)
+        private byte[] CalculateCheckSum(byte[] bytes)
         {
             //calculate checksum
             var checksum = 0;
@@ -239,7 +207,7 @@ namespace LightstripSyncClient
             }
 
             //add checksum to end of bytearray
-            byte[] tempArray = new byte[bytes.Length + 1];
+            var tempArray = new byte[bytes.Length + 1];
             bytes.CopyTo(tempArray, 0);
             tempArray[tempArray.Length - 1] = (byte)checksum;
 
@@ -254,7 +222,7 @@ namespace LightstripSyncClient
             return lightStrip.Name.Contains("ihoment_H6143");
         }
 
-       
+
     }
 }
 
