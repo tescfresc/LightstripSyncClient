@@ -1,26 +1,7 @@
 ﻿using System;
-using System.Data;
 using System.Drawing;
-using System.Drawing.Imaging;
-
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Forms;
-using System.Windows.Shapes;
-using System.Windows.Interop;
-using Windows.Devices.Bluetooth;
-using Windows.Devices.Bluetooth.GenericAttributeProfile;
-using Windows.Devices.Enumeration;
-using Windows.Storage.Streams;
-using ColorHelper;
 
 namespace LightstripSyncClient
 {
@@ -30,19 +11,23 @@ namespace LightstripSyncClient
         private Bitmap bitmap;
         private Graphics graphics;
 
-        private int bitmapRes = 150;
-        private double smoothSpeed = 0.8;
-        private int refreshRate = 5;
-        private int blackFilter = 220;
-        private int whiteFilter = 220;
-        public void ToggleSync(bool state)
+        private readonly int bitmapRes = 150;
+        private readonly double smoothSpeed = 0.8;
+        private readonly int refreshRate = 5;
+        private readonly int blackFilter = 220;
+        private readonly int whiteFilter = 220;
+        public void ToggleSync(bool state, BluetoothLEConnectionManager bluetoothLEConnectionManager)
         {
-            loop = !loop;
-            if (loop) SyncLoop();
+            loop = state;
+            if (loop)
+            {
+                SyncLoop(bluetoothLEConnectionManager);
+            }
         }
-        async void SyncLoop()
+
+        private async void SyncLoop(BluetoothLEConnectionManager bluetoothLEConnectionManager)
         {
-            var oldColor = System.Drawing.Color.White;
+            var oldColor = Color.White;
             while (loop)
             {
                 using (bitmap = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height))
@@ -56,29 +41,25 @@ namespace LightstripSyncClient
 
                         newColor = SmoothColor(oldColor, newColor, smoothSpeed);
 
-                        Globals.bluetoothLEConnectionManager.ChangeColor(newColor);
+                        bluetoothLEConnectionManager.ChangeColor(newColor);
 
                         oldColor = newColor;
-                        
+
                         bitmap.Dispose();
                         graphics.Dispose();
                     }
-
-
                 }
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 await Task.Delay(refreshRate);
             }
 
-
-
         }
 
         public Bitmap ResizeBitmap(Bitmap bmp, int width, int height)
         {
-            Bitmap result = new Bitmap(width, height);
-            using (Graphics g = Graphics.FromImage(result))
+            var result = new Bitmap(width, height);
+            using (var g = Graphics.FromImage(result))
             {
                 g.DrawImage(bmp, 0, 0, width, height);
             }
@@ -86,11 +67,11 @@ namespace LightstripSyncClient
             return result;
         }
 
-        private System.Drawing.Color FindDominantColour(Bitmap bmp)
+        private Color FindDominantColour(Bitmap bmp)
         {
             //get initial cluster
-            Random random = new Random();
-            var cluster = bmp.GetPixel(random.Next(0, bmp.Width), random.Next(0, bmp.Height));
+            var random = new Random();
+            _ = bmp.GetPixel(random.Next(0, bmp.Width), random.Next(0, bmp.Height));
 
             var n = bmp.Width * bmp.Height;
 
@@ -103,7 +84,7 @@ namespace LightstripSyncClient
                 for (var y = 0; y < bmp.Height; y++)
                 {
                     var color = bmp.GetPixel(x, y);
-                    if (GetEuclideanDist(color, System.Drawing.Color.Black) >= blackFilter && GetEuclideanDist(color, System.Drawing.Color.White) >= whiteFilter)
+                    if (GetEuclideanDist(color, Color.Black) >= blackFilter && GetEuclideanDist(color, Color.White) >= whiteFilter)
                     {
                         r += color.R;
                         g += color.G;
@@ -127,7 +108,7 @@ namespace LightstripSyncClient
             blue = Math.Min(255, Math.Max(0, blue));
 
 
-            System.Drawing.Color updatedCentre = System.Drawing.Color.FromArgb(
+            var updatedCentre = Color.FromArgb(
                 red,
                 green,
                 blue
@@ -135,25 +116,25 @@ namespace LightstripSyncClient
             return updatedCentre;
         }
 
-        private double GetEuclideanDist(System.Drawing.Color c1, System.Drawing.Color c2)
+        private double GetEuclideanDist(Color c1, Color c2)
         {
             return Math.Sqrt(
                 Math.Pow(c1.R - c2.R, 2) + Math.Pow(c1.G - c2.G, 2) + Math.Pow(c1.B - c2.B, 2)
                 );
         }
 
-        private System.Drawing.Color SmoothColor(System.Drawing.Color oldCol, System.Drawing.Color newCol, double time)
+        private Color SmoothColor(Color oldCol, Color newCol, double time)
         {
             var vector = new Vector3(newCol.R - oldCol.R, newCol.G - oldCol.G, newCol.B - oldCol.B);
             var adjustedVector = new Vector3(vector.x * time, vector.y * time, vector.z * time);
 
             var SmoothedColorVector = new Vector3(oldCol.R + adjustedVector.x, oldCol.G + adjustedVector.y, oldCol.B + adjustedVector.z);
 
-            var SmoothedColor = System.Drawing.Color.FromArgb((int)SmoothedColorVector.x, (int)SmoothedColorVector.y, (int)SmoothedColorVector.z);
+            var SmoothedColor = Color.FromArgb((int)SmoothedColorVector.x, (int)SmoothedColorVector.y, (int)SmoothedColorVector.z);
             return SmoothedColor;
         }
 
-        struct Vector3
+        private struct Vector3
         {
             public double x, y, z;
             public Vector3(double x, double y, double z)
