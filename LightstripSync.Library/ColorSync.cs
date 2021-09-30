@@ -13,9 +13,10 @@ namespace LightstripSyncClient
 
         private readonly int bitmapRes = 150;
         private readonly double smoothSpeed = 0.8;
-        private readonly int refreshRate = 5;
+        private readonly int refreshRate = 40;
         private readonly int blackFilter = 220;
         private readonly int whiteFilter = 220;
+
         public void ToggleSync(bool state, BluetoothLEConnectionManager bluetoothLEConnectionManager)
         {
             loop = state;
@@ -28,6 +29,7 @@ namespace LightstripSyncClient
         private async void SyncLoop(BluetoothLEConnectionManager bluetoothLEConnectionManager)
         {
             var oldColor = Color.White;
+            var random = new Random();
             while (loop)
             {
                 using (bitmap = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height))
@@ -41,7 +43,8 @@ namespace LightstripSyncClient
 
                         newColor = SmoothColor(oldColor, newColor, smoothSpeed);
 
-                        bluetoothLEConnectionManager.ChangeColor(newColor);
+                        bluetoothLEConnectionManager.ChangeColor(Color.FromArgb(random.Next(0, 255), random.Next(0, 255), random.Next(0, 255)));
+                        //bluetoothLEConnectionManager.ChangeColor(newColor);
 
                         oldColor = newColor;
 

@@ -6,15 +6,20 @@
         xmlns:local="clr-namespace:LightstripSyncClient"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="Connect" Height="438.032" Width="308.883">
+        Title="Govee Flow: Search" SizeToContent="WidthAndHeight">
     <Window.Resources>
         <Color x:Key="TextColor">#FFAEAEAE</Color>
     </Window.Resources>
     <Window.Background>
         <SolidColorBrush Color="{DynamicResource WindowBackground}"/>
     </Window.Background>
-    <Grid>
-        <ListView x:Name="Device_List_Box" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="29,44,28,0" BorderThickness="0" Padding="20,0" Height="265" Width="246" SelectionChanged="Device_List_Box_SelectionChanged">
+    <StackPanel x:Name="Connecting_Panel" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10">
+        <TextBlock x:Name="Connecting_Text" Margin="0,0,0,10" TextWrapping="Wrap" Text="Please select a device:" VerticalAlignment="Top" FontSize="18" TextAlignment="Center" HorizontalAlignment="Center" FontFamily="Calibri">
+            <TextBlock.Foreground>
+                <SolidColorBrush Color="{DynamicResource ButtonText}"/>
+            </TextBlock.Foreground>
+        </TextBlock>
+        <ListView x:Name="Device_List_Box" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,10" BorderThickness="0" Padding="20,0" Height="265" Width="250" SelectionChanged="Device_List_Box_SelectionChanged">
             <ListView.Foreground>
                 <SolidColorBrush Color="{DynamicResource ButtonText}"/>
             </ListView.Foreground>
@@ -23,21 +28,6 @@
             </ListView.Background>
 
         </ListView>
-        <TextBlock Margin="0,9,0,0" TextWrapping="Wrap" Text="Please select a device to connect to" VerticalAlignment="Top" Width="334" Height="35" FontSize="18" TextAlignment="Center" HorizontalAlignment="Center" FontFamily="Calibri">
-            <TextBlock.Foreground>
-                <SolidColorBrush Color="{DynamicResource TextColor}"/>
-            </TextBlock.Foreground>
-        </TextBlock>
-        <Button x:Name="Connect_Button" Content="Connect" HorizontalAlignment="Center" Margin="13,337,13,0" VerticalAlignment="Top" Width="277" Height="49" Padding="0" BorderBrush="#00000000" FontSize="20" FontWeight="Bold" UseLayoutRounding="True" FontFamily="Calibri" IsEnabled="False" Click="Connect_Button_Click">
-            <Button.Foreground>
-                <SolidColorBrush Color="{DynamicResource ButtonText}"/>
-            </Button.Foreground>
-            <Button.Background>
-                <SolidColorBrush Color="#FF464646"/>
-            </Button.Background>
-        </Button>
-        <Rectangle x:Name="Connecting_Panel" Fill="#B2000000" HorizontalAlignment="Left" Height="409" Stroke="#00000000" VerticalAlignment="Top" Width="303" Visibility="Hidden"/>
-        <TextBlock x:Name="Connecting_Text" HorizontalAlignment="Center" Margin="50,174,51,169" TextWrapping="Wrap" Text="Connecting" VerticalAlignment="Center" Foreground="White" Width="202" TextAlignment="Center" FontSize="36" FontFamily="Calibri" FontWeight="Bold" Height="66" Visibility="Hidden"/>
-
-    </Grid>
+        <Button x:Name="Connect_Button" Content="Connect" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" Width="278" Height="49" Padding="0" BorderBrush="#00000000" FontSize="20" FontWeight="Bold" UseLayoutRounding="True" FontFamily="Calibri" Click="Connect_Button_Click" IsEnabled="False" Foreground="#FF020202" Background="#FF99D666"/>
+    </StackPanel>
 </Window>
