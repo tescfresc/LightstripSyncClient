@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,8 +26,12 @@ namespace LightstripSyncClient
         private bool lightsOn = true;
         private bool rainbowLoop;
 
+        private float colorTimeout = 50;
+        private Stopwatch colorStopwatch = new Stopwatch();
+
         public BluetoothLEConnectionManager()
         {
+            colorStopwatch.Start();
         }
         public void GetAvailableBluetoothDevices()
         {
@@ -127,10 +132,13 @@ namespace LightstripSyncClient
 
         public void ChangeColor(System.Drawing.Color color)
         {
+            if (colorStopwatch.ElapsedMilliseconds < colorTimeout)
+                return;
             var hexColor = ColorConverter.RgbToHex(new RGB(color.R, color.G, color.B));
             WriteCharacteristic(CreateBluetoothColourDataBytes(hexColor.ToString()));
             //WriteCharacteristic(CreateBluetoothColourDataBytes(hexColor.ToString(), 0xC300));
             //WriteCharacteristic(CreateBluetoothColourDataBytes("000000", 0x3C00));
+            colorStopwatch.Restart();
         }
 
         public void ToggleRainbowMode(bool state)
