@@ -16,7 +16,7 @@
         <Button x:Name="Disconnect_Button" Content="Disconnect &amp; Close" HorizontalAlignment="Center" Margin="0,0,0,10" VerticalAlignment="Top" Width="262" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Disconnect_Button_Click" Foreground="White" Background="#FFDA4848" BorderBrush="{x:Null}"/>
         <Button x:Name="Power_Button" Content="Power: ON" HorizontalAlignment="Center" Margin="0,0,0,10" VerticalAlignment="Top" Width="262" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Power_Button_Click" Foreground="White" Background="#FFC1A36F" BorderBrush="{x:Null}"/>
         <xctk:ColorCanvas x:Name="Color_Picker" Margin="0,0,0,10" Background="#FF1F1F1F" Foreground="White" BorderBrush="{x:Null}" SelectedColorChanged="Color_Picker_SelectedColorChanged" />
-        <Button x:Name="Rainbow_Button" Content="Rainbow Mode: OFF" HorizontalAlignment="Center" Margin="0,0,0,10" VerticalAlignment="Top" Width="262" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Rainbow_Button_Click" Foreground="White" BorderBrush="{x:Null}">
+        <Button x:Name="Flicker_Button" Content="Flicker Mode: OFF" HorizontalAlignment="Center" Margin="0,0,0,10" VerticalAlignment="Top" Width="262" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Flicker_Button_Click" Foreground="White" BorderBrush="{x:Null}">
             <Button.Background>
                 <SolidColorBrush Color="{DynamicResource ButtonBackground}"/>
             </Button.Background>

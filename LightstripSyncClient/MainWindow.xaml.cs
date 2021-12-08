@@ -54,25 +54,24 @@ namespace LightstripSyncClient
             Globals.BluetoothLEConnectionManager.ChangeColor(newColor);
         }
 
-        private void Rainbow_Button_Click(object sender, RoutedEventArgs e)
+        private void Flicker_Button_Click(object sender, RoutedEventArgs e)
         {
             rainbowMode = !rainbowMode;
-            Globals.BluetoothLEConnectionManager.ToggleRainbowMode(rainbowMode);
+            Globals.BluetoothLEConnectionManager.ToggleFlickerMode(rainbowMode);
             if (rainbowMode)
             {
-                Rainbow_Button.Content = "Rainbow Mode: ON";
+                Flicker_Button.Content = "Flicker Mode: ON";
                 Color_Picker.IsEnabled = false;
                 Sync_Button.IsEnabled = false;
                 Power_Button.IsEnabled = false;
             }
             else
             {
-                Rainbow_Button.Content = "Rainbow Mode: OFF";
+                Flicker_Button.Content = "Flicker Mode: OFF";
                 Color_Picker.IsEnabled = true;
                 Sync_Button.IsEnabled = true;
                 Power_Button.IsEnabled = true;
             }
-
         }
 
         private void Sync_Button_Click(object sender, RoutedEventArgs e)
@@ -83,14 +82,14 @@ namespace LightstripSyncClient
             {
                 Sync_Button.Content = "Sync Mode: ON";
                 Color_Picker.IsEnabled = false;
-                Rainbow_Button.IsEnabled = false;
+                Flicker_Button.IsEnabled = false;
                 Power_Button.IsEnabled = false;
             }
             else
             {
                 Sync_Button.Content = "Sync Mode: OFF";
                 Color_Picker.IsEnabled = true;
-                Rainbow_Button.IsEnabled = true;
+                Flicker_Button.IsEnabled = true;
                 Power_Button.IsEnabled = true;
             }
         }

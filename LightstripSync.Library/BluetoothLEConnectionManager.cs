@@ -24,7 +24,8 @@ namespace LightstripSyncClient
         private Forms.Timer keepAliveTimer;
 
         private bool lightsOn = true;
-        private bool rainbowLoop;
+        private bool flickerLoop;
+        private System.Drawing.Color color;
 
         private float colorTimeout = 50;
         private Stopwatch colorStopwatch = new Stopwatch();
@@ -117,6 +118,7 @@ namespace LightstripSyncClient
             };
             keepAliveTimer.Tick += (sender, e) => KeepAliveTick(sender, e, bytes);
             keepAliveTimer.Start();
+            Task.Run(() => FlickerLoop());
         }
 
         public void TogglePowerState(bool state)
@@ -130,38 +132,51 @@ namespace LightstripSyncClient
             WriteCharacteristic(bytes);
         }
 
-        public void ChangeColor(System.Drawing.Color color)
+        public void ChangeColor(System.Drawing.Color newColor)
         {
             if (colorStopwatch.ElapsedMilliseconds < colorTimeout)
                 return;
-            var hexColor = ColorConverter.RgbToHex(new RGB(color.R, color.G, color.B));
+            this.color = newColor;
+            var hexColor = ColorConverter.RgbToHex(new RGB(newColor.R, newColor.G, newColor.B));
             WriteCharacteristic(CreateBluetoothColourDataBytes(hexColor.ToString()));
             //WriteCharacteristic(CreateBluetoothColourDataBytes(hexColor.ToString(), 0xC300));
             //WriteCharacteristic(CreateBluetoothColourDataBytes("000000", 0x3C00));
             colorStopwatch.Restart();
         }
-
-        public void ToggleRainbowMode(bool state)
+        private void ChangeColorTemp(System.Drawing.Color newColor)
         {
-            rainbowLoop = state;
-            if (rainbowLoop)
-            {
-                RainbowLoop();
-            }
+            if (colorStopwatch.ElapsedMilliseconds < colorTimeout)
+                return;
+            var hexColor = ColorConverter.RgbToHex(new RGB(newColor.R, newColor.G, newColor.B));
+            WriteCharacteristic(CreateBluetoothColourDataBytes(hexColor.ToString()));
+            colorStopwatch.Restart();
         }
 
-        private async void RainbowLoop()
+        public void ToggleFlickerMode(bool state)
         {
-            var colour = new HSV(0, 100, 100);
-            while (rainbowLoop)
+            flickerLoop = state;
+        }
+
+        int Clamp(int v, int min, int max)
+        {
+            return Math.Max(Math.Min(v, max), min);
+        }
+
+        private async void FlickerLoop()
+        {
+            var random = new Random();
+            while (true)
             {
-                WriteCharacteristic(CreateBluetoothColourDataBytes(ColorHelper.ColorConverter.HsvToHex(colour).Value));
-                colour.H += 1;
-                await Task.Delay(20);
-                if (colour.H > 359)
-                {
-                    colour.H = 0;
-                }
+                if (!flickerLoop)
+                    continue;
+
+                var flickerRange = 5;
+                var flickerAmount = random.Next(flickerRange * 2) - flickerRange;
+                var flickerColor = System.Drawing.Color.FromArgb(color.A, Clamp(color.R + flickerAmount, 0, 255),
+                    Clamp(color.G + flickerAmount, 0, 255),
+                    Clamp(color.B + flickerAmount, 0, 255));
+                ChangeColorTemp(flickerColor);
+                await Task.Delay(100);
             }
         }
 
