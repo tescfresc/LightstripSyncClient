@@ -1,19 +1,29 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Media;
+using System.Drawing;
 
 namespace LightstripSyncClient
 {
     public partial class MainWindow : Window
     {
         private bool powerButtonState = true;
-        private System.Drawing.Color currentColour = System.Drawing.Color.White;
+        private System.Windows.Forms.NotifyIcon notifyIcon;
 
         private bool rainbowMode = false;
         private bool syncMode = false;
+
         public MainWindow()
         {
             InitializeComponent();
 
+            notifyIcon = new NotifyIcon();
+            notifyIcon.Visible = true;
+            //notifyIcon.Icon = (SystemIcons.Application);
+            notifyIcon.Icon = (Icon) LightstripSyncClient.Properties.Resources.icon;
+            notifyIcon.Text = "Lightstrip Controller";
+            notifyIcon.Click += new EventHandler(Notify_Icon_Click);
         }
 
         private void Power_Button_Click(object sender, RoutedEventArgs e)
@@ -23,47 +33,45 @@ namespace LightstripSyncClient
             Power_Button.Content = powerButtonState ? "Power: ON" : "Power: OFF";
         }
 
-        private void Pick_Colour_Button_Click(object sender, RoutedEventArgs e)
+        protected override void OnStateChanged(EventArgs e)
         {
-            ColorDialog colorPicker = new ColorDialog
-            {
-                AllowFullOpen = true,
-                Color = System.Drawing.Color.White
-            };
-            DialogResult result = colorPicker.ShowDialog();
-            if (result.ToString() == "OK")
-            {
-                currentColour = colorPicker.Color;
-                Globals.BluetoothLEConnectionManager.ChangeColor(currentColour);
-            }
+            if (WindowState == WindowState.Minimized)
+                this.Hide();
+
+            base.OnStateChanged(e);
         }
 
-        private void Brightness_Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Notify_Icon_Click(object sender, EventArgs e)
         {
-            Globals.BluetoothLEConnectionManager.ChangeBrightness(Brightness_Slider.Value);
+            this.Show();
+            WindowState = WindowState.Normal;
+            this.Focus();
         }
 
-        private void Rainbow_Button_Click(object sender, RoutedEventArgs e)
+        private void Color_Picker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<System.Windows.Media.Color?> e)
+        {
+            var newColor = System.Drawing.Color.FromArgb(255, Color_Picker.R, Color_Picker.G, Color_Picker.B);
+            Globals.BluetoothLEConnectionManager.ChangeColor(newColor);
+        }
+
+        private void Flicker_Button_Click(object sender, RoutedEventArgs e)
         {
             rainbowMode = !rainbowMode;
-            Globals.BluetoothLEConnectionManager.ToggleRainbowMode(rainbowMode);
+            Globals.BluetoothLEConnectionManager.ToggleFlickerMode(rainbowMode);
             if (rainbowMode)
             {
-                Rainbow_Button.Content = "Rainbow Mode: ON";
-                Pick_Colour_Button.IsEnabled = false;
-                Brightness_Slider.IsEnabled = false;
+                Flicker_Button.Content = "Flicker Mode: ON";
+                Color_Picker.IsEnabled = false;
                 Sync_Button.IsEnabled = false;
                 Power_Button.IsEnabled = false;
             }
             else
             {
-                Rainbow_Button.Content = "Rainbow Mode: OFF";
-                Pick_Colour_Button.IsEnabled = true;
-                Brightness_Slider.IsEnabled = true;
+                Flicker_Button.Content = "Flicker Mode: OFF";
+                Color_Picker.IsEnabled = true;
                 Sync_Button.IsEnabled = true;
                 Power_Button.IsEnabled = true;
             }
-
         }
 
         private void Sync_Button_Click(object sender, RoutedEventArgs e)
@@ -73,17 +81,15 @@ namespace LightstripSyncClient
             if (syncMode)
             {
                 Sync_Button.Content = "Sync Mode: ON";
-                Pick_Colour_Button.IsEnabled = false;
-                Brightness_Slider.IsEnabled = false;
-                Rainbow_Button.IsEnabled = false;
+                Color_Picker.IsEnabled = false;
+                Flicker_Button.IsEnabled = false;
                 Power_Button.IsEnabled = false;
             }
             else
             {
                 Sync_Button.Content = "Sync Mode: OFF";
-                Pick_Colour_Button.IsEnabled = true;
-                Brightness_Slider.IsEnabled = true;
-                Rainbow_Button.IsEnabled = true;
+                Color_Picker.IsEnabled = true;
+                Flicker_Button.IsEnabled = true;
                 Power_Button.IsEnabled = true;
             }
         }
@@ -92,11 +98,6 @@ namespace LightstripSyncClient
         {
             Globals.BluetoothLEConnectionManager.lightStrip.Dispose();
             System.Windows.Application.Current.Shutdown();
-        }
-
-        private void Test_Button_Click(object sender, RoutedEventArgs e)
-        {
-            //Globals.bluetoothLEConnectionManager.TestCommand();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -11,11 +12,11 @@ namespace LightstripSyncClient
         private Bitmap bitmap;
         private Graphics graphics;
 
-        private readonly int bitmapRes = 150;
         private readonly double smoothSpeed = 0.8;
-        private readonly int refreshRate = 5;
+        private readonly int refreshRate = 10;
         private readonly int blackFilter = 220;
         private readonly int whiteFilter = 220;
+
         public void ToggleSync(bool state, BluetoothLEConnectionManager bluetoothLEConnectionManager)
         {
             loop = state;
@@ -28,19 +29,20 @@ namespace LightstripSyncClient
         private async void SyncLoop(BluetoothLEConnectionManager bluetoothLEConnectionManager)
         {
             var oldColor = Color.White;
+            var random = new Random();
             while (loop)
             {
-                using (bitmap = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height))
+                using (bitmap = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height, PixelFormat.Format32bppArgb))
                 {
                     using (graphics = Graphics.FromImage(bitmap))
                     {
                         graphics.CopyFromScreen(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, 0, 0, Screen.PrimaryScreen.Bounds.Size, CopyPixelOperation.SourceCopy);
-                        bitmap = ResizeBitmap(bitmap, bitmapRes, bitmapRes);
 
-                        var newColor = FindDominantColour(bitmap);
+                        //var newColor = FindDominantColour(bitmap);
+                        //newColor = SmoothColor(oldColor, newColor, smoothSpeed);
+                        var newColor = GetAverageColor(bitmap, 3);
 
-                        newColor = SmoothColor(oldColor, newColor, smoothSpeed);
-
+                        //bluetoothLEConnectionManager.ChangeColor(Color.FromArgb(random.Next(0, 255), random.Next(0, 255), random.Next(0, 255)));
                         bluetoothLEConnectionManager.ChangeColor(newColor);
 
                         oldColor = newColor;
@@ -49,8 +51,8 @@ namespace LightstripSyncClient
                         graphics.Dispose();
                     }
                 }
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
+                //GC.Collect();
+                //GC.WaitForPendingFinalizers();
                 await Task.Delay(refreshRate);
             }
 
@@ -67,82 +69,36 @@ namespace LightstripSyncClient
             return result;
         }
 
-        private Color FindDominantColour(Bitmap bmp)
+        public unsafe Color GetAverageColor(Bitmap image, int sampleStep = 1)
         {
-            //get initial cluster
-            var random = new Random();
-            _ = bmp.GetPixel(random.Next(0, bmp.Width), random.Next(0, bmp.Height));
+            var data = image.LockBits(
+                new Rectangle(Point.Empty, image.Size),
+                ImageLockMode.ReadOnly,
+                PixelFormat.Format32bppArgb);
 
-            var n = bmp.Width * bmp.Height;
+            var row = (int*)data.Scan0.ToPointer();
+            var (sumR, sumG, sumB) = (0L, 0L, 0L);
+            var stride = data.Stride / sizeof(int) * sampleStep;
 
-            double r = 0;
-            double g = 0;
-            double b = 0;
-
-            for (var x = 0; x < bmp.Width; x++)
+            for (var y = 0; y < data.Height; y += sampleStep)
             {
-                for (var y = 0; y < bmp.Height; y++)
+                for (var x = 0; x < data.Width; x += sampleStep)
                 {
-                    var color = bmp.GetPixel(x, y);
-                    if (GetEuclideanDist(color, Color.Black) >= blackFilter && GetEuclideanDist(color, Color.White) >= whiteFilter)
-                    {
-                        r += color.R;
-                        g += color.G;
-                        b += color.B;
-                    }
-                    else
-                    {
-                        n--;
-                    }
-
+                    var argb = row[x];
+                    sumR += (argb & 0x00FF0000) >> 16;
+                    sumG += (argb & 0x0000FF00) >> 8;
+                    sumB += argb & 0x000000FF;
                 }
+                row += stride;
             }
 
-            ////clamp values
-            var red = (int)Math.Round(r / n);
-            var green = (int)Math.Round(g / n);
-            var blue = (int)Math.Round(b / n);
+            image.UnlockBits(data);
 
-            red = Math.Min(255, Math.Max(0, red));
-            green = Math.Min(255, Math.Max(0, green));
-            blue = Math.Min(255, Math.Max(0, blue));
-
-
-            var updatedCentre = Color.FromArgb(
-                red,
-                green,
-                blue
-                );
-            return updatedCentre;
-        }
-
-        private double GetEuclideanDist(Color c1, Color c2)
-        {
-            return Math.Sqrt(
-                Math.Pow(c1.R - c2.R, 2) + Math.Pow(c1.G - c2.G, 2) + Math.Pow(c1.B - c2.B, 2)
-                );
-        }
-
-        private Color SmoothColor(Color oldCol, Color newCol, double time)
-        {
-            var vector = new Vector3(newCol.R - oldCol.R, newCol.G - oldCol.G, newCol.B - oldCol.B);
-            var adjustedVector = new Vector3(vector.x * time, vector.y * time, vector.z * time);
-
-            var SmoothedColorVector = new Vector3(oldCol.R + adjustedVector.x, oldCol.G + adjustedVector.y, oldCol.B + adjustedVector.z);
-
-            var SmoothedColor = Color.FromArgb((int)SmoothedColorVector.x, (int)SmoothedColorVector.y, (int)SmoothedColorVector.z);
-            return SmoothedColor;
-        }
-
-        private struct Vector3
-        {
-            public double x, y, z;
-            public Vector3(double x, double y, double z)
-            {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-            }
+            var numSamples = data.Width / sampleStep * data.Height / sampleStep;
+            var avgR = sumR / numSamples;
+            var avgG = sumG / numSamples;
+            var avgB = sumB / numSamples;
+            return Color.FromArgb((int)avgR, (int)avgG, (int)avgB);
         }
     }
 }

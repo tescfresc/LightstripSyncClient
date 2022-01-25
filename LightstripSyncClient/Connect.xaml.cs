@@ -27,10 +27,11 @@ namespace LightstripSyncClient
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         var item = new ListViewItem();
+                        item.Margin = new Thickness(0, 5, 0, 5);
                         foreach (var device in e.NewItems)
                         {
                             var btDevice = (BluetoothLEDevice)device;
-                            item.Content = btDevice.Name;
+                            item.Content = btDevice.DeviceInformation.Name == "" ? "Unnamed Device" : btDevice.DeviceInformation.Name;
                             item.Tag = btDevice;
                             Device_List_Box.Items.Add(item);
                         }
@@ -62,7 +63,6 @@ namespace LightstripSyncClient
             var item = (ListViewItem)Device_List_Box.SelectedItem;
             var lightStrip = (BluetoothLEDevice)item.Tag;
             Connecting_Panel.Visibility = Visibility.Visible;
-            Connecting_Text.Visibility = Visibility.Visible;
 
             if (await Globals.BluetoothLEConnectionManager.InitiateConnection(lightStrip))
             {
@@ -71,9 +71,8 @@ namespace LightstripSyncClient
                 App.Current.MainWindow = main;
                 connectWindow.Close();
                 main.Show();
+                Connecting_Panel.Visibility = Visibility.Hidden;
             }
-            Connecting_Panel.Visibility = Visibility.Hidden;
-            Connecting_Text.Visibility = Visibility.Hidden;
         }
     }
 }

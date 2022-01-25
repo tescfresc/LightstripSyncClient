@@ -1,68 +1,30 @@
-﻿<Window x:Class="LightstripSyncClient.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LightstripSyncClient"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" x:Class="LightstripSyncClient.MainWindow"
         mc:Ignorable="d"
-        ResizeMode="NoResize"
-        Title="Lightstrip Sync" Height="532.8" Width="288.8">
+        ResizeMode="CanMinimize"
+        Title="Govee Flow: Management"
+        SizeToContent="WidthAndHeight">
     <Window.Background>
         <SolidColorBrush Color="{DynamicResource WindowBackground}"/>
     </Window.Background>
-    <Grid>
-        <Button x:Name="Disconnect_Button" Content="Disconnect &amp; Close" HorizontalAlignment="Center" Margin="10,10,10,0" VerticalAlignment="Top" Width="263" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Disconnect_Button_Click">
-            <Button.Foreground>
-                <SolidColorBrush Color="{DynamicResource ButtonText}"/>
-            </Button.Foreground>
+    <StackPanel VerticalAlignment="Top" Margin="15" HorizontalAlignment="Center">
+        <Button x:Name="Disconnect_Button" Content="Disconnect &amp; Close" HorizontalAlignment="Center" Margin="0,0,0,10" VerticalAlignment="Top" Width="262" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Disconnect_Button_Click" Foreground="White" Background="#FFDA4848" BorderBrush="{x:Null}"/>
+        <Button x:Name="Power_Button" Content="Power: ON" HorizontalAlignment="Center" Margin="0,0,0,10" VerticalAlignment="Top" Width="262" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Power_Button_Click" Foreground="White" Background="#FFC1A36F" BorderBrush="{x:Null}"/>
+        <xctk:ColorCanvas x:Name="Color_Picker" Margin="0,0,0,10" Background="#FF1F1F1F" Foreground="White" BorderBrush="{x:Null}" SelectedColorChanged="Color_Picker_SelectedColorChanged" />
+        <Button x:Name="Flicker_Button" Content="Flicker Mode: OFF" HorizontalAlignment="Center" Margin="0,0,0,10" VerticalAlignment="Top" Width="262" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Flicker_Button_Click" Foreground="White" BorderBrush="{x:Null}">
             <Button.Background>
                 <SolidColorBrush Color="{DynamicResource ButtonBackground}"/>
             </Button.Background>
         </Button>
-        <Button x:Name="Power_Button" Content="Power: ON" HorizontalAlignment="Center" Margin="10,66,10,0" VerticalAlignment="Top" Width="263" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Power_Button_Click">
-            <Button.Foreground>
-                <SolidColorBrush Color="{DynamicResource ButtonText}"/>
-            </Button.Foreground>
+        <Button x:Name="Sync_Button" Content="Sync Mode: OFF" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" Width="262" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Sync_Button_Click" Foreground="White" BorderBrush="{x:Null}">
             <Button.Background>
                 <SolidColorBrush Color="{DynamicResource ButtonBackground}"/>
             </Button.Background>
         </Button>
-        <Button x:Name="Pick_Colour_Button" Content="Pick Colour" HorizontalAlignment="Center" Margin="10,128,10,0" VerticalAlignment="Top" Width="263" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Pick_Colour_Button_Click">
-            <Button.Foreground>
-                <SolidColorBrush Color="{DynamicResource ButtonText}"/>
-            </Button.Foreground>
-            <Button.Background>
-                <SolidColorBrush Color="{DynamicResource ButtonBackground}"/>
-            </Button.Background>
-        </Button>
-        <Slider x:Name="Brightness_Slider" HorizontalAlignment="Center" Margin="10,219,10,0" VerticalAlignment="Top" Width="263" Height="26" Foreground="Black" Background="#00000000" ValueChanged="Brightness_Slider_ValueChanged"/>
-        <TextBlock HorizontalAlignment="Center" Margin="10,191,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="263" Height="28" TextAlignment="Center" FontFamily="Calibri" FontSize="20">
-            <TextBlock.Foreground>
-                <SolidColorBrush Color="{DynamicResource ButtonText}"/>
-            </TextBlock.Foreground><Run Text="Brightness"/><LineBreak/><Run/></TextBlock>
-        <Button x:Name="Rainbow_Button" Content="Rainbow Mode: OFF" HorizontalAlignment="Center" Margin="10,268,10,0" VerticalAlignment="Top" Width="263" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Rainbow_Button_Click">
-            <Button.Foreground>
-                <SolidColorBrush Color="{DynamicResource ButtonText}"/>
-            </Button.Foreground>
-            <Button.Background>
-                <SolidColorBrush Color="{DynamicResource ButtonBackground}"/>
-            </Button.Background>
-        </Button>
-        <Button x:Name="Sync_Button" Content="Sync Mode: OFF" HorizontalAlignment="Center" Margin="10,329,10,0" VerticalAlignment="Top" Width="263" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Sync_Button_Click">
-            <Button.Foreground>
-                <SolidColorBrush Color="{DynamicResource ButtonText}"/>
-            </Button.Foreground>
-            <Button.Background>
-                <SolidColorBrush Color="{DynamicResource ButtonBackground}"/>
-            </Button.Background>
-        </Button>
-        <Button x:Name="Test_Button" Content="TEST" HorizontalAlignment="Center" Margin="10,394,10,0" VerticalAlignment="Top" Width="263" Height="46" FontSize="20" FontFamily="Calibri" FontWeight="Bold" Padding="0" Click="Test_Button_Click" Visibility="Hidden">
-            <Button.Foreground>
-                <SolidColorBrush Color="{DynamicResource ButtonText}"/>
-            </Button.Foreground>
-            <Button.Background>
-                <SolidColorBrush Color="{DynamicResource ButtonBackground}"/>
-            </Button.Background>
-        </Button>
-    </Grid>
+    </StackPanel>
 </Window>

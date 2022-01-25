@@ -7,7 +7,7 @@
 
         <Color x:Key="WindowBackground">#FF323232</Color>
         <Color x:Key="ButtonBackground">#FF464646</Color>
-        <Color x:Key="ButtonText">#FFB6B6B6</Color>
+        <Color x:Key="ButtonText">White</Color>
         <Color x:Key="FormBackground">#FF515151</Color>
 
     </Application.Resources>
