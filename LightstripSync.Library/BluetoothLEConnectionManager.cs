@@ -65,7 +65,7 @@ namespace LightstripSyncClient
             var bluetoothLEDevice = await BluetoothLEDevice.FromIdAsync(deviceInformation.Id);
 
             var deviceName = bluetoothLEDevice.Name;
-            return deviceName.Substring(0, 4) == "ihom" ? bluetoothLEDevice : null;
+            return (deviceName.Substring(0, 4) == "ihom" || deviceName.Substring(0, 4) == "GBK_") ? bluetoothLEDevice : null;
         }
 
         public async Task<bool> InitiateConnection(BluetoothLEDevice device)
