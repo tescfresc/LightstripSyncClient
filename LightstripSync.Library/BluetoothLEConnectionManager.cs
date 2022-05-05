@@ -13,6 +13,8 @@ namespace LightstripSyncClient
 {
     public class BluetoothLEConnectionManager
     {
+        //create a string array to hold the list of support devices
+        private static readonly string[] SupportedDevices = { "ihom", "GBK_" };
         private const string GattUUID = "00010203-0405-0607-0809-0a0b0c0d2b11";
 
         public ObservableCollection<BluetoothLEDevice­> Devices { get; private set; } = new ObservableCollection<BluetoothLEDevice>();
@@ -65,7 +67,16 @@ namespace LightstripSyncClient
             var bluetoothLEDevice = await BluetoothLEDevice.FromIdAsync(deviceInformation.Id);
 
             var deviceName = bluetoothLEDevice.Name;
-            return deviceName.Substring(0, 4) == "ihom" ? bluetoothLEDevice : null;
+            //loop through the supported devices and see if the name matches
+            for (int i = 0; i < SupportedDevices.Length; i++)
+            {
+                if (deviceName.Contains(SupportedDevices[i]))
+                {
+                    return deviceName.Substring(0, 4) == SupportedDevices[i] ? bluetoothLEDevice : null;
+                }
+            }
+            return null;
+
         }
 
         public async Task<bool> InitiateConnection(BluetoothLEDevice device)
