@@ -34,7 +34,6 @@ namespace LightstripSyncClient
                             item.Tag = btDevice;
                             Device_List_Box.Items.Add(item);
                         }
-
                     });
                     break;
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
@@ -48,8 +47,6 @@ namespace LightstripSyncClient
                 default:
                     break;
             }
-
-
         }
 
         private void Device_List_Box_SelectionChanged(object sender, SelectionChangedEventArgs e)
