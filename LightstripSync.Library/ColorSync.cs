@@ -53,7 +53,6 @@ namespace LightstripSyncClient
                 GC.WaitForPendingFinalizers();
                 await Task.Delay(refreshRate);
             }
-
         }
 
         public Bitmap ResizeBitmap(Bitmap bmp, int width, int height)
@@ -94,7 +93,6 @@ namespace LightstripSyncClient
                     {
                         n--;
                     }
-
                 }
             }
 
@@ -106,7 +104,6 @@ namespace LightstripSyncClient
             red = Math.Min(255, Math.Max(0, red));
             green = Math.Min(255, Math.Max(0, green));
             blue = Math.Min(255, Math.Max(0, blue));
-
 
             var updatedCentre = Color.FromArgb(
                 red,
