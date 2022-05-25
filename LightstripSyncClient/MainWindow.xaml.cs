@@ -13,7 +13,6 @@ namespace LightstripSyncClient
         public MainWindow()
         {
             InitializeComponent();
-
         }
 
         private void Power_Button_Click(object sender, RoutedEventArgs e)
@@ -63,7 +62,6 @@ namespace LightstripSyncClient
                 Sync_Button.IsEnabled = true;
                 Power_Button.IsEnabled = true;
             }
-
         }
 
         private void Sync_Button_Click(object sender, RoutedEventArgs e)
